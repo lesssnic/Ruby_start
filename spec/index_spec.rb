@@ -3,48 +3,84 @@ require './lib/index'
 RSpec.describe Check do
   # let(:file) { 'spec/test.txt' }
   file_path = 'spec/test.txt'
+  empty_file_path = 'spec/not_exists.txt'
   before(:all) do
     File.new(file_path, 'w+')
-    $file = File.open(file_path, 'r+')
   end
+
   after(:all) do
     File.delete(file_path)
   end
 
   describe 'BOM check' do
+    let(:file) { File.open(file_path, 'w+') }
+
     context 'when file is empty' do
-      it do
-        check = Check.new(file_path)
-        expect(check.check_and_fix_file).to eql([nil, 'File is empty'])
+      let(:result) do
+        described_class.new(file_path).check_and_fix_file
+      end
+
+      it 'expected path' do
+        expect(result[0]).to eq(nil)
+      end
+
+      it 'expected message' do
+        expect(result[1]).to eq('File is empty')
       end
     end
+
     context 'when file not exists' do
-      it do
-        check = Check.new('./BOM-not-exists.txt')
-        expect(check.check_and_fix_file).to eql([nil, 'File not exists'])
+      let(:result) do
+        described_class.new(empty_file_path).check_and_fix_file
+      end
+
+      it 'expected path' do
+        expect(result[0]).to eq(nil)
+      end
+
+      it 'expected message' do
+        expect(result[1]).to eq('File not exists')
       end
     end
+
     context 'when file without BOM' do
       let(:result) do
-        $file.rewind
-        $file.puts('test text without BOM')
-        $file.rewind
-        Check.new(file_path).check_and_fix_file
+        opened_file = file
+        opened_file.rewind
+        opened_file.puts('test text without BOM')
+        opened_file.rewind
+        opened_file.close
+        described_class.new(file_path).check_and_fix_file
       end
+
       it 'expected path' do
         expect(result[0]).to eq(file_path)
       end
+
       it 'expected message' do
         expect(result[1]).to eq('Normal file')
       end
     end
+
     context 'when file with BOM' do
-      it do
-        $file.rewind
-        $file.puts([239, 187, 191, 32, 54, 87, 10].pack('C*') + 'with BOM')
-        $file.rewind
-        check = Check.new(file_path)
-        expect(check.check_and_fix_file).to eql([file_path, 'Success'])
+      let(:result) do
+        opened_file = file
+        opened_file.rewind
+        opened_file.puts("#{[239, 187, 191, 32, 54, 87, 10].pack('C*')} with BOM")
+        opened_file.rewind
+        opened_file.close
+        described_class.new(file_path).check_and_fix_file
+      end
+
+      it 'expected path' do
+        expect(result[0]).to eq(file_path)
+      end
+      # it 'not expected nil' do
+      #   expect(result[0]).to.not eq(nil)
+      # end
+
+      it 'expected message' do
+        expect(result[1]).to eq('Success')
       end
     end
     # context 'test private method' do
