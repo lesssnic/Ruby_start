@@ -1,7 +1,6 @@
 require './lib/index'
 
 RSpec.describe Check do
-  # let(:file) { 'spec/test.txt' }
   file_path = 'spec/test.txt'
   empty_file_path = 'spec/not_exists.txt'
   before(:all) do
@@ -24,8 +23,16 @@ RSpec.describe Check do
         expect(result[0]).to eq(nil)
       end
 
+      it 'Path not expected string' do
+        expect(result[0]).not_to be_a(String)
+      end
+
       it 'expected message' do
         expect(result[1]).to eq('File is empty')
+      end
+
+      it 'Status not expected nil' do
+        expect(result[1]).not_to eq(nil)
       end
     end
 
@@ -38,8 +45,16 @@ RSpec.describe Check do
         expect(result[0]).to eq(nil)
       end
 
+      it 'Path not expected string' do
+        expect(result[0]).not_to be_a(String)
+      end
+
       it 'expected message' do
         expect(result[1]).to eq('File not exists')
+      end
+
+      it 'Status not expected nil' do
+        expect(result[1]).not_to eq(nil)
       end
     end
 
@@ -57,8 +72,16 @@ RSpec.describe Check do
         expect(result[0]).to eq(file_path)
       end
 
+      it 'Path not expected nil' do
+        expect(result[0]).not_to eq(nil)
+      end
+
       it 'expected message' do
         expect(result[1]).to eq('Normal file')
+      end
+
+      it 'Status not expected nil' do
+        expect(result[1]).not_to eq(nil)
       end
     end
 
@@ -75,19 +98,18 @@ RSpec.describe Check do
       it 'expected path' do
         expect(result[0]).to eq(file_path)
       end
-      # it 'not expected nil' do
-      #   expect(result[0]).to.not eq(nil)
-      # end
+
+      it 'Path not expected nil' do
+        expect(result[0]).not_to eq(nil)
+      end
 
       it 'expected message' do
         expect(result[1]).to eq('Success')
       end
+
+      it 'Status not expected nil' do
+        expect(result[1]).not_to eq(nil)
+      end
     end
-    # context 'test private method' do
-    #   it {
-    #     check = Check.new('./test.txt')
-    #     expect(check.send(:fix_file)).to eql([[], 'Success'])
-    #   }
-    # end
   end
 end
