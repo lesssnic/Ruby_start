@@ -1,8 +1,10 @@
 require './lib/index'
 
 RSpec.describe Check do
-  file_path = 'temp/test.txt'
-  empty_file_path = 'temp/not_exists.txt'
+  let(:file_path) { 'temp/test.txt' }
+  let(:new_file_path) { 'temp/new-test.txt' }
+  let(:empty_file_path) { 'temp/not_exists.txt' }
+
   before do
     File.new(file_path, 'w+')
   end
@@ -32,6 +34,16 @@ RSpec.describe Check do
       it 'Status not expected nil' do
         expect(result[1]).not_to eq(nil)
       end
+
+      it 'file should be empty' do
+        result
+        expect(File.zero?(file_path)).to eq(true)
+      end
+
+      it 'file should not be fill' do
+        result
+        expect(File.zero?(file_path)).not_to eq(false)
+      end
     end
 
     context 'when file not exists' do
@@ -53,6 +65,16 @@ RSpec.describe Check do
 
       it 'Status not expected nil' do
         expect(result[1]).not_to eq(nil)
+      end
+
+      it 'file should not be exists' do
+        result
+        expect(File.file?(empty_file_path)).to eq(false)
+      end
+
+      it 'file should be exists' do
+        described_class.new(file_path).check_and_fix_file
+        expect(File.file?(file_path)).not_to eq(false)
       end
     end
 
@@ -80,19 +102,25 @@ RSpec.describe Check do
       it 'Status not expected nil' do
         expect(result[1]).not_to eq(nil)
       end
+
+      it 'file should not be a changed' do
+        result
+        opened_file = File.open(file_path, 'r')
+        expect(opened_file.read).to eq("test text without BOM\n")
+      end
     end
 
     context 'when file with BOM' do
       before do
         opened_file = File.open(file_path, 'w+')
         opened_file.rewind
-        opened_file.puts("#{[239, 187, 191, 32, 54, 87, 10].pack('C*')} with BOM")
+        opened_file.puts("#{[239, 187, 191].pack('C*')}With BOM")
         opened_file.rewind
         opened_file.close
       end
 
       it 'expected path' do
-        expect(result[0]).to eq(file_path)
+        expect(result[0]).to eq(new_file_path)
       end
 
       it 'Path not expected nil' do
@@ -105,6 +133,13 @@ RSpec.describe Check do
 
       it 'Status not expected nil' do
         expect(result[1]).not_to eq(nil)
+      end
+
+      it 'file should be a changed' do
+        result
+        opened_file = File.open(new_file_path, 'r')
+        expect(opened_file.read).to eq("With BOM\n")
+        File.delete(new_file_path)
       end
     end
   end
