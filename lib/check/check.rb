@@ -38,8 +38,10 @@
 #     [array, 'Success']
 #   end
 # end
+require_relative '../modules/module_check'
 
 class Check
+  include Expander
   BYTE8 = [239, 187, 191].freeze
   def initialize(file_path)
     @path = file_path
@@ -72,19 +74,7 @@ class Check
     true
   end
 
-  def fix_string(string)
-    array = string.bytes
-    array.shift(3)
-    array.pack('C*')
-  end
-
   def new_file(path)
     File.open(path, 'w+')
-  end
-
-  def generate_path(old_path)
-    new_path = old_path.split('/')
-    new_path[new_path.length - 1] = "new-#{new_path[new_path.length - 1]}"
-    new_path.join('/')
   end
 end

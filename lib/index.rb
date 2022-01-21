@@ -4,5 +4,5 @@
 
 require_relative 'check/check'
 
-check = Check.new('./temp/BOM.txt')
-p check.check_and_fix_file
+# check = Check.new('./temp/BOM.txt')
+# p check.check_and_fix_file
