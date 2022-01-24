@@ -59,9 +59,9 @@ class Check
     @file.rewind
     new_f = new_file(new_path)
     string = fix_string(@file.gets)
-    new_f.write(string.downcase) if string.length > 2
+    new_f.write(string.downcase) unless string.length <= 2 && string.bytes[0..1] == [13, 10]
     @file.readlines.each do |line|
-      new_f.write(line.downcase) if line.length > 2
+      new_f.write(line.downcase) unless line.length <= 2 && line.bytes[0..1] == [13, 10]
     end
     new_f.close
     @file.close
