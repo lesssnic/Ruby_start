@@ -58,8 +58,11 @@ class Check
     new_path = generate_path(@path)
     @file.rewind
     new_f = new_file(new_path)
-    new_f.write(fix_string(@file.gets))
-    @file.readlines.each { |line| new_f.write(line) }
+    string = fix_string(@file.gets)
+    new_f.write(string.downcase) if string.length > 2
+    @file.readlines.each do |line|
+      new_f.write(line.downcase) if line.length > 2
+    end
     new_f.close
     @file.close
     [new_path, 'Success']
